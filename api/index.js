@@ -9,6 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-prod';
 
+//  FIX: CORS configuration that works for Localhost and Vercel
 app.use(
   cors({
     origin: [
@@ -19,6 +20,9 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(express.json()); // Ensure JSON parsing is enabled
+app.use(cookieParser());
 
 function generateToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
@@ -38,7 +42,11 @@ function authMiddleware(req, res, next) {
 
 function validateSignup(body) {
   const errors = {};
-  const { firstName, lastName, username, password } = body;
+  
+  //  FIX: Accept camelCase (firstName) OR snake_case (first_name)
+  const firstName = body.firstName || body.first_name;
+  const lastName = body.lastName || body.last_name;
+  const { username, password } = body;
 
   if (!firstName || typeof firstName !== 'string' || firstName.trim().length < 2 || firstName.trim().length > 50) {
     errors.firstName = 'First name must be 2-50 characters';
@@ -68,32 +76,47 @@ app.post('/api/auth/signup', async (req, res) => {
     return res.status(409).json({ errors: { username: 'Username already taken' } });
   }
 
+  //  FIX: Grab the names correctly for saving to DB
+  const firstName = (req.body.firstName || req.body.first_name).trim();
+  const lastName = (req.body.lastName || req.body.last_name).trim();
+
   const hash = await bcrypt.hash(req.body.password, 12);
-  await createUser({
-    firstName: req.body.firstName.trim(),
-    lastName: req.body.lastName.trim(),
-    username,
-    passwordHash: hash,
-  });
-  return res.status(201).json({ message: 'Signup successful' });
+  
+  try {
+    await createUser({
+      firstName, 
+      lastName,
+      username,
+      passwordHash: hash,
+    });
+    return res.status(201).json({ message: 'Signup successful' });
+  } catch (err) {
+    console.error('Signup error:', err);
+    return res.status(500).json({ error: 'Failed to create user' });
+  }
 });
 
 app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ error: 'Username and password are required' });
+  
   const user = await getUserByUsername(String(username).trim());
   if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+  
   const ok = await bcrypt.compare(password, user.password_hash);
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 
   const token = generateToken({ id: user.id, username: user.username, firstName: user.first_name, lastName: user.last_name });
+  
+  //  FIX: Secure cookies in production (Vercel), standard cookies in dev
   res.cookie('auth_token', token, {
     httpOnly: true,
-    secure: false,
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production', // True on Vercel, False on Localhost
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' is often required for cross-site cookies if domains differ
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
   });
+  
   return res.json({ message: 'Login successful', user: { username: user.username, firstName: user.first_name, lastName: user.last_name } });
 });
 
@@ -120,8 +143,10 @@ app.post('/api/scores/update', authMiddleware, async (req, res) => {
   const { mode, score } = req.body || {};
   const validModes = ['beginner', 'intermediate', 'professional'];
   if (!validModes.includes(mode)) return res.status(400).json({ error: 'Invalid mode' });
+  
   const numericScore = Number(score);
   if (!Number.isFinite(numericScore) || numericScore < 0) return res.status(400).json({ error: 'Invalid score' });
+  
   try {
     const result = await upsertBestScore(req.user.id, req.user.username, mode, numericScore);
     return res.json({ bestScore: result.best_score });
@@ -133,12 +158,13 @@ app.post('/api/scores/update', authMiddleware, async (req, res) => {
 let server;
 // Initialize database schema in all environments
 initSchema().catch(err => console.error('Database initialization failed', err));
+
+// Only start the local server if we are NOT in production/test
 if (process.env.NODE_ENV !== 'test') {
   server = app.listen(PORT, () => {
     console.log(`Auth server running at http://localhost:${PORT}`);
   });
 }
 
-
-// Export for Vercel Serverless
+// FIX: Single Export for Vercel
 export default app;
