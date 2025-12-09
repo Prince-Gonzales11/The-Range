@@ -1,0 +1,26 @@
+{
+  "name": "the-range",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "node server/index.js",
+    "test": "vitest run --exclude tests/** --environment jsdom"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "three": "^0.164.0"
+  },
+  "devDependencies": {
+    "jsdom": "^27.2.0",
+    "supertest": "^6.3.4",
+    "vite": "^4.4.9",
+    "vitest": "^1.6.0"
+  }
+}
