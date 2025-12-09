@@ -185,9 +185,7 @@ function playShootSound() {
 }
 
 // Load Gun
-const gunURL = new URL('/models/gun.glb', import.meta.url).href;
-
-gltfLoader.load(gunURL, (gltf) => {
+gltfLoader.load('/models/gun.glb', (gltf) => {
     gun = gltf.scene;
     const box = new THREE.Box3().setFromObject(gun);
     const center = box.getCenter(new THREE.Vector3());
