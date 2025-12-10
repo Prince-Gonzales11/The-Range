@@ -116,11 +116,17 @@ Steps:
 ## Team Roles
 - Prince Johnard Gonzales (Backend & Database)
 
-- Responsibilities: Express API architecture, API endpoint creation, Neon PostgreSQL schema design, queries, and optimizations, authentication (JWT/Bcrypt), API security, and server-side testing
+- Database: Organizes and stores all player data, scores, and account information.
 
-Ryan Ranada (Frontend & 3D Lead)
+- Security: Handles user logins and passwords.
 
-- Responsibilities: Three.js scene management, game loop logic, GLTF asset integration, UI/HUD implementation, client-side connectivity, and frontend testing (Vitest).
+Ryan Ranada (Frontend & 3D)
+
+- 3D Visuals: Builds the 3D shooting range environment and visual assets.
+
+- Gameplay: Programs how the game plays (aiming, shooting, and moving).
+
+- Interface: Creates the menus, scoreboards, and on-screen displays (HUD) the player sees.
 
 ## Security & Best Practices
 - Strong password policy and server‑side validation
