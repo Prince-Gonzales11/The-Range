@@ -83,22 +83,22 @@ export class Target {
         }
     }
 
-   checkCollision(cameraPosition) {
-    const threshold = this.levelConfig.collisionDistance;
-    const distance = this.mesh.position.distanceTo(cameraPosition);
-   return distance < threshold;
-}
+    checkCollision(cameraPosition) {
+        const threshold = this.levelConfig.collisionDistance;
+        const distance = this.mesh.position.distanceTo(cameraPosition);
+        return distance < threshold;
+    }
 
- flashHit() {
-    const m = this.mesh.material;
-    const origColor = m.color.clone();
-    m.emissive = new THREE.Color(0xffffff);
-    m.emissiveIntensity = 1.0;
-    this.mesh.scale.multiplyScalar(1.1);
-    setTimeout(() => {
-        m.emissiveIntensity = 0;
-        m.color.copy(origColor);
-        this.mesh.scale.set(1,1,1);
-    }, 120);
- }
+    flashHit() {
+        const m = this.mesh.material;
+        const origColor = m.color.clone();
+        m.emissive = new THREE.Color(0xffffff);
+        m.emissiveIntensity = 1.0;
+        this.mesh.scale.multiplyScalar(1.1);
+        setTimeout(() => {
+            m.emissiveIntensity = 0;
+            m.color.copy(origColor);
+            this.mesh.scale.set(1,1,1);
+        }, 120);
+    }
 }

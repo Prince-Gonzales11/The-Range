@@ -190,9 +190,21 @@ export class AuthManager {
     sf.password.addEventListener('input', () => {
       this.updatePasswordFeedback();
       this.updateSignupSubmitState();
+      this.clearError('signup', 'password'); // NEW: Clear error on typing
     });
+    if (sf.confirmPassword) {
+      sf.confirmPassword.addEventListener('input', () => {
+        this.updateSignupSubmitState();
+        this.clearError('signup', 'confirmPassword'); // NEW: Clear error on typing
+      });
+    }
     sf.firstName.addEventListener('input', () => this.updateSignupSubmitState());
     sf.lastName.addEventListener('input', () => this.updateSignupSubmitState());
+    
+    // Login form clearing
+    const lf = this.elements.loginForm;
+    lf.username.addEventListener('input', () => this.clearError('login', 'username'));
+    lf.password.addEventListener('input', () => this.clearError('login', 'password'));
     
     // Toggle Password Visibility Logic
     const toggleBtns = this.elements.overlay.querySelectorAll('.toggle-password');
@@ -203,8 +215,32 @@ export class AuthManager {
         const isHidden = input.type === 'password';
         input.type = isHidden ? 'text' : 'password';
         btn.setAttribute('aria-pressed', String(isHidden));
+        btn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
       });
     });
+  }
+
+  // New helper to clear specific field error
+  clearError(context, fieldName) {
+    const prefix = context === 'signup' ? 'signup' : 'login';
+    const mapping = {
+      firstName: 'first-name-error',
+      lastName: 'last-name-error',
+      username: `${prefix}-username-error`,
+      password: `${prefix}-password-error`,
+      confirmPassword: 'signup-confirm-password-error',
+    };
+    const id = mapping[fieldName];
+    if (id) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '';
+    }
+    const form = context === 'signup' ? this.elements.signupForm : this.elements.loginForm;
+    const input = form[fieldName];
+    if (input) {
+      input.classList.remove('invalid');
+      input.removeAttribute('aria-invalid');
+    }
   }
 
   switchTab(tab) {
@@ -346,7 +382,15 @@ export class AuthManager {
       this.lastAuthDurationMs = t1 - t0;
       const data = await res.json();
       if (!res.ok) {
-        this.elements.loginStatus.textContent = data.error || 'Login failed';
+        // Requirement: "Incorrect password. Please try again."
+        // Backend sends "Invalid credentials", mapping it to requested message.
+        const msg = data.error === 'Invalid credentials' 
+          ? 'Incorrect password. Please try again.' 
+          : (data.error || 'Login failed');
+        
+        // Show generic error or map specific field if possible
+        // Since login usually doesn't return field-specific errors for security, we show it on password or general status
+        this.showErrors('login', { password: msg }); 
         return;
       }
       this.setUser(data.user);

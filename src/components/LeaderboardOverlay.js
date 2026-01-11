@@ -131,7 +131,7 @@ export class LeaderboardOverlay {
     });
 
     this.overlay.style.display = 'block';
-    requestAnimationFrame(async () => {
+    requestAnimationFrame(() => {
       this.overlay.classList.add('lb-open');
       // Check if post-game summary is also open
       const postGameOverlay = document.getElementById('postgame-overlay');
@@ -139,22 +139,8 @@ export class LeaderboardOverlay {
         document.body.classList.add('both-overlays-open');
       }
       // Load leaderboard data
-      const data = await this.getLeaderboardData(modeToShow);
-      this.renderLeaderboard(data, username);
+      this.loadLeaderboard(modeToShow, username);
     });
-  }
-
-  async getLeaderboardData(mode) {
-    try {
-      const res = await fetch(`/api/leaderboard/${mode}?limit=10`, {
-        credentials: 'include'
-      });
-      if (!res.ok) return [];
-      const data = await res.json();
-      return data.leaderboard || [];
-    } catch {
-      return [];
-    }
   }
 
   hide() {

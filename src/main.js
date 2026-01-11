@@ -572,11 +572,6 @@ async function handleCollision(target) {
 
 renderer.setAnimationLoop(animate);
 
-// Control events
-/*controls.addEventListener('lock', () => {
-    gameState.isPlaying = true;
-});
-*/
 async function fetchHighScores() {
     try {
         const res = await fetch('/api/scores/me', { credentials: 'include' });
