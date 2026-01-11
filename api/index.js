@@ -48,15 +48,15 @@ function validateSignup(body) {
   const lastName = body.lastName || body.last_name;
   const { username, password } = body;
 
-  if (!firstName || typeof firstName !== 'string' || firstName.trim().length < 2 || firstName.trim().length > 50) {
-    errors.firstName = 'First name must be 2-50 characters';
+  if (!firstName || typeof firstName !== 'string' || firstName.trim().length === 0) {
+    errors.firstName = 'First name is required';
   }
-  if (!lastName || typeof lastName !== 'string' || lastName.trim().length < 2 || lastName.trim().length > 50) {
-    errors.lastName = 'Last name must be 2-50 characters';
+  if (!lastName || typeof lastName !== 'string' || lastName.trim().length === 0) {
+    errors.lastName = 'Last name is required';
   }
   const uname = (username || '').trim();
-  if (!uname || uname.length < 4 || uname.length > 20 || !/^[a-zA-Z0-9]+$/.test(uname)) {
-    errors.username = 'Username must be 4-20 alphanumeric characters';
+  if (!uname || uname.length < 3) {
+    errors.username = 'Username must be at least 3 characters';
   }
   const pw = password || '';
   const complexity = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;

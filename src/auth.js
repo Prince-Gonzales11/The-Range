@@ -1,6 +1,6 @@
 import logoUrl from './assets/logo.png';
-const usernameRegex = /^[a-zA-Z0-9]{4,20}$/;
-const nameValid = s => typeof s === 'string' && s.trim().length >= 2 && s.trim().length <= 50;
+const usernameRegex = /^.{3,}$/;
+const nameValid = s => typeof s === 'string' && s.trim().length > 0;
 const passwordComplex = s => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/.test(s);
 
 export class AuthManager {
@@ -50,75 +50,101 @@ export class AuthManager {
     const overlay = document.createElement('div');
     overlay.id = 'auth-overlay';
     overlay.innerHTML = `
-      <div class="auth-brand" id="auth-brand">
-        <img src="${logoUrl}" alt="The Range" />
-        <span>The Range</span>
-      </div>
-      <div class="auth-container">
-        <div class="panel-header"><h2 id="panel-title">PLEASE LOGIN</h2></div>
-        <div class="tabs" role="tablist">
-          <button id="login-tab" role="tab" aria-controls="login-panel" aria-selected="true">Login</button>
-          <button id="signup-tab" role="tab" aria-controls="signup-panel" aria-selected="false">Sign Up</button>
+      <div class="auth-content-wrapper" style="display:flex; flex-direction:column; align-items:center;">
+        <div class="auth-brand" id="auth-brand">
+          <img src="${logoUrl}" alt="The Range" />
+          <span>The Range</span>
         </div>
-        <div id="login-panel" role="tabpanel">
-          <form id="login-form" novalidate>
-            <label for="login-username">Username</label>
-            <input id="login-username" name="username" type="text" required autocomplete="username" />
-            <span class="error" id="login-username-error" aria-live="polite"></span>
-
-            <label for="login-password">Password</label>
-            <input id="login-password" name="password" type="password" required autocomplete="current-password" />
-            <span class="error" id="login-password-error" aria-live="polite"></span>
-
-            <button type="submit" id="login-submit">Login</button>
-            <div class="form-status" id="login-status" aria-live="polite"></div>
-          </form>
-        </div>
-        <div id="signup-panel" role="tabpanel" hidden>
-          <form id="signup-form" novalidate>
-            <div class="form-group">
-              <label for="first-name">First name</label>
-              <input id="first-name" name="firstName" type="text" required minlength="2" maxlength="50" />
-              <span class="error" id="first-name-error" aria-live="polite"></span>
-            </div>
-
-            <div class="form-group">
-              <label for="last-name">Last name</label>
-              <input id="last-name" name="lastName" type="text" required minlength="2" maxlength="50" />
-              <span class="error" id="last-name-error" aria-live="polite"></span>
-            </div>
-
-            <div class="form-group">
-              <label for="signup-username">Username</label>
-              <input id="signup-username" name="username" type="text" required pattern="^[a-zA-Z0-9]{4,20}$" aria-describedby="username-help" />
-              <span class="hint" id="username-help">4–20 letters or numbers; no spaces or symbols</span>
-              <span class="status" id="signup-username-status" aria-live="polite"></span>
-              <span class="error" id="signup-username-error" aria-live="polite"></span>
-              <div class="suggestions" id="signup-username-suggestions" aria-live="polite"></div>
-            </div>
-
-            <div class="form-group password-group">
-              <label for="signup-password">Password</label>
-              <input id="signup-password" name="password" type="password" required aria-describedby="password-help" />
-              <span class="hint" id="password-help">Use upper, lower, number, and symbol for a strong password</span>
-              <div class="password-feedback" id="password-feedback" aria-live="polite">
-                <ul class="requirements" aria-label="Password requirements">
-                  <li id="pw-req-length" data-desc="Minimum 6 characters">Min 6 characters</li>
-                  <li id="pw-req-upper-lower" data-desc="Must include uppercase and lowercase">Upper & lower letters</li>
-                  <li id="pw-req-number" data-desc="At least one digit">At least one number</li>
-                  <li id="pw-req-symbol" data-desc="At least one special character">At least one symbol</li>
-                </ul>
-                <div class="strength" id="password-strength" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Password strength">
-                  <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
-                  <span class="strength-label" id="strength-label">Weak</span>
+        <div class="auth-container">
+          <div class="panel-header"><h2 id="panel-title">PLEASE LOGIN</h2></div>
+          <div class="tabs" role="tablist">
+            <button id="login-tab" role="tab" aria-controls="login-panel" aria-selected="true">Login</button>
+            <button id="signup-tab" role="tab" aria-controls="signup-panel" aria-selected="false">Sign Up</button>
+          </div>
+          <div id="login-panel" role="tabpanel">
+            <form id="login-form" novalidate>
+              <div class="form-group">
+                <label for="login-username">Username</label>
+                <div class="input-wrap">
+                  <input id="login-username" name="username" type="text" required autocomplete="username" />
                 </div>
+                <span class="error" id="login-username-error" aria-live="polite"></span>
               </div>
-              <span class="error" id="signup-password-error" aria-live="polite"></span>
-            </div>
 
-            <button type="submit" id="signup-submit" disabled>Create Account</button>
-            <div class="form-status" id="signup-status" aria-live="polite"></div>
-          </form>
+              <div class="form-group">
+                <label for="login-password">Password</label>
+                <div class="password-wrapper">
+                  <input id="login-password" name="password" type="password" required autocomplete="current-password" />
+                  <button type="button" class="toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
+                    <svg class="icon eye" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    <svg class="icon eye-off" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+                  </button>
+                </div>
+                <span class="error" id="login-password-error" aria-live="polite"></span>
+              </div>
+
+              <button type="submit" id="login-submit">Login</button>
+              <div class="form-status" id="login-status" aria-live="polite"></div>
+            </form>
+          </div>
+          <div id="signup-panel" role="tabpanel" hidden>
+            <form id="signup-form" novalidate>
+              <div class="form-group">
+                <label for="first-name">First name</label>
+                <div class="input-wrap">
+                  <input id="first-name" name="firstName" type="text" required />
+                </div>
+                <span class="error" id="first-name-error" aria-live="polite"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="last-name">Last name</label>
+                <div class="input-wrap">
+                  <input id="last-name" name="lastName" type="text" required />
+                </div>
+                <span class="error" id="last-name-error" aria-live="polite"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="signup-username">Username</label>
+                <div class="input-wrap">
+                  <input id="signup-username" name="username" type="text" required aria-describedby="username-help" />
+                </div>
+                <span class="hint" id="username-help">Minimum 3 characters; spaces and symbols allowed</span>
+                <span class="status" id="signup-username-status" aria-live="polite"></span>
+                <span class="error" id="signup-username-error" aria-live="polite"></span>
+                <div class="suggestions" id="signup-username-suggestions" aria-live="polite"></div>
+              </div>
+
+              <div class="form-group password-group">
+                <label for="signup-password">Password</label>
+                <div class="password-wrapper">
+                  <input id="signup-password" name="password" type="password" required aria-describedby="password-help" />
+                  <button type="button" class="toggle-password" aria-label="Toggle password visibility" aria-pressed="false">
+                    <svg class="icon eye" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    <svg class="icon eye-off" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+                  </button>
+                </div>
+                <span class="hint" id="password-help">Use upper, lower, number, and symbol for a strong password</span>
+                <div class="password-feedback" id="password-feedback" aria-live="polite">
+                  <ul class="requirements" aria-label="Password requirements">
+                    <li id="pw-req-length" data-desc="Minimum 6 characters">Min 6 characters</li>
+                    <li id="pw-req-upper-lower" data-desc="Must include uppercase and lowercase">Upper & lower letters</li>
+                    <li id="pw-req-number" data-desc="At least one digit">At least one number</li>
+                    <li id="pw-req-symbol" data-desc="At least one special character">At least one symbol</li>
+                  </ul>
+                  <div class="strength" id="password-strength" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Password strength">
+                    <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+                    <span class="strength-label" id="strength-label">Weak</span>
+                  </div>
+                </div>
+                <span class="error" id="signup-password-error" aria-live="polite"></span>
+              </div>
+
+              <button type="submit" id="signup-submit" disabled>Create Account</button>
+              <div class="form-status" id="signup-status" aria-live="polite"></div>
+            </form>
+          </div>
         </div>
       </div>
     `;
@@ -167,6 +193,18 @@ export class AuthManager {
     });
     sf.firstName.addEventListener('input', () => this.updateSignupSubmitState());
     sf.lastName.addEventListener('input', () => this.updateSignupSubmitState());
+    
+    // Toggle Password Visibility Logic
+    const toggleBtns = this.elements.overlay.querySelectorAll('.toggle-password');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent focus loss or form submission
+        const input = btn.previousElementSibling;
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        btn.setAttribute('aria-pressed', String(isHidden));
+      });
+    });
   }
 
   switchTab(tab) {
@@ -192,9 +230,9 @@ export class AuthManager {
     const username = this.elements.signupForm.username.value.trim();
     const password = this.elements.signupForm.password.value;
     const errors = {};
-    if (!nameValid(firstName)) errors.firstName = 'First name must be 2-50 characters';
-    if (!nameValid(lastName)) errors.lastName = 'Last name must be 2-50 characters';
-    if (!usernameRegex.test(username)) errors.username = 'Username must be 4-20 alphanumeric characters';
+    if (!nameValid(firstName)) errors.firstName = 'First name is required';
+    if (!nameValid(lastName)) errors.lastName = 'Last name is required';
+    if (!usernameRegex.test(username)) errors.username = 'Username must be at least 3 characters';
     if (!passwordComplex(password)) errors.password = 'Password must be 8+ chars with complexity';
     this.showErrors('signup', errors);
     return errors;
@@ -368,7 +406,7 @@ export class AuthManager {
       this.elements.signupUsernameStatus.textContent = 'Format looks good';
       this.elements.signupUsernameStatus.className = 'status valid';
     } else {
-      this.elements.signupUsernameStatus.textContent = 'Invalid format';
+      this.elements.signupUsernameStatus.textContent = 'Must be at least 3 characters';
       this.elements.signupUsernameStatus.className = 'status invalid';
     }
   }
